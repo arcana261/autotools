@@ -1,3 +1,29 @@
+# project output
+/hello
+/libwhine-1.0.la
+
+# auto generated files
+.deps
+.dirstamp
+/.libs
+/Makefile
+/build-aux
+/config.h
+/config.log
+/config.status
+/libtool
+/*.pc
+
+# object files
+*.o
+*.lo
+
+# junk files
+*~
+
+# vscode
+/.vscode
+
 # http://www.gnu.org/software/automake
 
 Makefile.in
