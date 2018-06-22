@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/arcana261/autotools.svg?branch=master)](https://travis-ci.org/arcana261/autotools)
+[![Coverage Status](https://coveralls.io/repos/github/arcana261/autotools/badge.svg?branch=master)](https://coveralls.io/github/arcana261/autotools?branch=master)
+
 # autotools
 A backbone for autotools and C/C++
 
