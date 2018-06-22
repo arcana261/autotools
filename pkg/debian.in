@@ -1,0 +1,6 @@
+Package: __NAME__
+Version: __VERSION__
+Maintainer: some-Maintainer
+Architecture: __ARCHITECTURE__
+Description: some-Description
+Depends: libglib2.0 (>=2.40)

@@ -110,6 +110,10 @@ AX_COVERAGE
 # find awk
 # AC_PROG_AWK
 
+# required for finding installation directory, $(INSTALL)
+# also determining canonical host etc.
+AC_PROG_INSTALL
+
 ### cpplint ###
 # check availability of cpplint
 AC_PATH_PROG([CPPLINT],[cpplint])
@@ -118,8 +122,12 @@ AC_SUBST([CPPLINT])
 # define conditional
 AM_CONDITIONAL([HAVE_CPPLINT], [test x$CPPLINT != x])
 
-# required for finding installation directory, $(INSTALL)
-AC_PROG_INSTALL
+# check availability of debian packaging tools
+AC_PATH_PROG(DPKG_DEB, [dpkg-deb])
+# export variable DPKG_DEB
+AC_SUBST([DPKG_DEB])
+# define conditional
+AM_CONDITIONAL([HAVE_DEBIAN_PACKAGING], [test x$DPKG_DEB != x])
 
 ## handling libraries
 # 1. initialize libtool
@@ -229,4 +237,7 @@ Coverage Reports      : $COVERAGE_SUPPORT
       COVERAGE_LDFLAGS  : $COVERAGE_LDFLAGS
       COVERAGE_LIBS     : $COVERAGE_LIBS
     lcov                : $LCOV
+
+Debian packaging:
+  dpkg-deb              : $DPKG_DEB
 ])

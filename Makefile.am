@@ -69,7 +69,11 @@ ACLOCAL_AMFLAGS = -I m4 --install
 EXTRA_DIST = \
 	autogen.sh \
 	whine.pc \
-	CPPLINT.cfg
+	CPPLINT.cfg \
+	pkg/postinst.sh \
+	pkg/postrm.sh \
+	pkg/preinst.sh \
+	pkg/prerm.sh
 
 # define root as include dir
 AM_CPPFLAGS = -I$(top_srcdir)/src
@@ -175,6 +179,37 @@ clean-coverage:
 	find $(top_builddir) -name *.gcov -exec rm -f {} +
 	rm -f $(top_builddir)/coverage.info
 	rm -rfv $(top_builddir)/coverage
+
+# debian packaging
+if HAVE_DEBIAN_PACKAGING
+deb:
+	$(MAKE) $(AM_MAKEFLAGS) dist-gzip
+	rm -rf $(distdir)
+	GZIP=$(GZIP_ENV) gzip -dc $(distdir).tar.gz | $(am__untar)
+	$(MKDIR_P) $(distdir)/_build/DEBIAN
+	install_base=`$(am__cd) $(distdir)/_build && pwd` \
+		&& $(am__cd) $(distdir) \
+		&& ./configure $(AM_CONFIGURE_FLAGS) --prefix="$$install_base" \
+		&& $(MAKE) $(AM_MAKEFLAGS) \
+		&& $(MAKE) $(AM_MAKEFLAGS) install
+	cat pkg/preinst.sh | $(SED) "s/__VERSION__/${VERSION}/g" > $(distdir)/_build/DEBIAN/preinst
+	cat pkg/prerm.sh | $(SED) "s/__VERSION__/${VERSION}/g" > $(distdir)/_build/DEBIAN/prerm
+	cat pkg/postinst.sh | $(SED) "s/__VERSION__/${VERSION}/g" > $(distdir)/_build/DEBIAN/postinst
+	cat pkg/postrm.sh | $(SED) "s/__VERSION__/${VERSION}/g" > $(distdir)/_build/DEBIAN/postrm
+	chmod +x $(distdir)/_build/DEBIAN/preinst
+	chmod +x $(distdir)/_build/DEBIAN/postinst
+	chmod +x $(distdir)/_build/DEBIAN/prerm
+	chmod +x $(distdir)/_build/DEBIAN/postrm
+	arch=`echo $(host_cpu) | $(SED) "s/x86_64/amd64/g"` && \
+		name=`echo $(PACKAGE_NAME) | $(SED) "s/_/-/g"` && \
+		cat pkg/debian.in | \
+		$(SED) "s/__VERSION__/${VERSION}/g" | \
+		$(SED) "s/__NAME__/$$name/g" | \
+		$(SED) "s/__ARCHITECTURE__/$$arch/g" \
+		> $(distdir)/_build/DEBIAN/control
+	$(DPKG_DEB) --build $(distdir)/_build
+	$(am__mv) $(distdir)/_build.deb $(distdir).deb
+endif
 
 # define extensions to "make check"
 check-local: | check-test
