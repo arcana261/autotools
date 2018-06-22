@@ -11,4 +11,5 @@ script:
   - make unittest
   - make sanity
   - make coverage
+  - make distcheck
  

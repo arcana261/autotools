@@ -174,7 +174,7 @@ LT_INIT
 #
 
 # resolve glib-2.0
-PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.48])
+PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.40])
 
 ### OUTPUTS ###
 
