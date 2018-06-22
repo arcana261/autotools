@@ -16,6 +16,7 @@
 /Pipfile.lock
 *.gcov
 /m4/pkg.m4
+/INSTALL
 
 # object files
 *.o
