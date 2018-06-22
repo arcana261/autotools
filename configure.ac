@@ -53,7 +53,7 @@ AC_CONFIG_MACRO_DIR([m4])
 #			a good example is files NEWS, COPYING, AUTHORS, ChangeLog, README
 #  gnu: (default) standard flavor of automake
 #  dist-gzip, dist-bzip2, dist-xz, dist-zip, ... : specify format of distribution zip file
-AM_INIT_AUTOMAKE([1.15 -Wall -Werror foreign subdir-objects])
+AM_INIT_AUTOMAKE([1.14 -Wall -Werror foreign subdir-objects])
 
 # required for defining options like -DDEBUG=1
 # AM_PROG_CC_C_O
