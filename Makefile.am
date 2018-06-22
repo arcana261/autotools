@@ -68,7 +68,8 @@ ACLOCAL_AMFLAGS = -I m4 --install
 # some extra files which are not source files
 EXTRA_DIST = \
 	autogen.sh \
-	whine.pc
+	whine.pc \
+	CPPLINT.cfg
 
 # define root as include dir
 AM_CPPFLAGS = -I$(top_srcdir)/src
@@ -82,15 +83,10 @@ AM_CFLAGS += $(GLIB_CFLAGS)
 AM_LDFLAGS += $(GLIB_LIBS)
 
 # check code style via cpplint
-CPPLINT_OPTIONS =
-Pipfile.lock: Pipfile
+.PHONY: lint
 if HAVE_CPPLINT
-	$(PIPENV) install
-endif
-.PHONY: check-cpplint
-check-cpplint: Pipfile.lock
-if HAVE_CPPLINT
-	find $(top_srcdir)/src $(top_srcdir)/test -type f -name "*.cc" -or -name "*.cpp" -or -name "*.cu" -or -name "*.cuh" -or -name "*.h" -or -name "*.hpp" | xargs $(PIPENV) run cpplint --extensions=cc,cpp,cu,cuh,h,hpp --counting=detailed $(CPPLINT_OPTIONS)
+lint:
+	find $(top_srcdir)/src -type f -name "*.cc" -or -name "*.c" -or -name "*.cpp" -or -name "*.cu" -or -name "*.cuh" -or -name "*.h" -or -name "*.hpp" | xargs $(CPPLINT) --counting=detailed
 endif
 
 # run pre-built tests
@@ -99,43 +95,43 @@ check-test: test/whine/whine_test
 	test/whine/whine_test
 
 # run unit tests
-.PHONY: check-unittest
-check-unittest:
+.PHONY: unittest
+unittest:
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) check-test
 
 #-fprofile-arcs -ftest-coverage
 # sanitizer specs
-.PHONY: check-sanity-leak check-sanity-address check-sanity-undefined check-sanity-thread check-sanity-memory
-check-sanity-leak:
+.PHONY: sanity-leak sanity-address sanity-undefined sanity-thread sanity-memory
+sanity-leak:
 if HAVE_LEAK_SANITIZER
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) CFLAGS="$(CFLAGS) -fsanitize=leak" CXXFLAGS="$(CXXFLAGS) -fsanitize=leak" check-test 
 endif
-check-sanity-address:
+sanity-address:
 if HAVE_ADDRESS_SANITIZER
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) CFLAGS="$(CFLAGS) -fsanitize=address" CXXFLAGS="$(CXXFLAGS) -fsanitize=address" check-test 
 endif
-check-sanity-undefined:
+sanity-undefined:
 if HAVE_UNDEFINED_SANITIZER
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) CFLAGS="$(CFLAGS) -fsanitize=undefined" CXXFLAGS="$(CXXFLAGS) -fsanitize=undefined" check-test 
 endif
-check-sanity-thread:
+sanity-thread:
 if HAVE_THREAD_SANITIZER
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) CFLAGS="$(CFLAGS) -fsanitize=thread" CXXFLAGS="$(CXXFLAGS) -fsanitize=thread" check-test 
 endif
-check-sanity-memory:
+sanity-memory:
 if HAVE_MEMORY_SANITIZER
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) CFLAGS="$(CFLAGS) -fsanitize=memory" CXXFLAGS="$(CXXFLAGS) -fsanitize=memory" check-test 
 endif
 
 # run all sanitizers
-.PHONY: check-sanity
-check-sanity: | check-sanity-leak check-sanity-address check-sanity-undefined check-sanity-thread check-sanity-memory
+.PHONY: sanity
+sanity: | sanity-leak sanity-address sanity-undefined sanity-thread sanity-memory
 
 # run code coverage
 # notable outputs
@@ -146,8 +142,8 @@ check-sanity: | check-sanity-leak check-sanity-address check-sanity-undefined ch
 # Overall coverage rate:
 #  lines......: 40.0% (2 of 5 lines)
 #  functions..: 50.0% (1 of 2 functions)
-.PHONY: check-coverage
-check-coverage:
+.PHONY: coverage
+coverage:
 	$(MAKE) $(AM_MAKEFLAGS) clean
 	$(MAKE) $(AM_MAKEFLAGS) \
 		CFLAGS="$(CFLAGS) $(COVERAGE_CFLAGS) $(COVERAGE_OPTFLAGS)" \
@@ -181,7 +177,7 @@ clean-coverage:
 	rm -rfv $(top_builddir)/coverage
 
 # define extensions to "make check"
-check-local: | check-cpplint check-unittest check-sanity check-coverage
+check-local: | check-test
 
 # define extensions to "make clean"
 clean-local: | clean-coverage

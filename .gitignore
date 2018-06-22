@@ -3,6 +3,10 @@
 /libwhine-1.la
 /test/whine/whine_test
 
+# distribution
+/sample_app-0.1.0
+/sample_app-0.1.0.tar.gz
+
 # auto generated files
 .deps
 .dirstamp

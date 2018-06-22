@@ -111,24 +111,12 @@ AX_COVERAGE
 # AC_PROG_AWK
 
 ### cpplint ###
-# check availability of python
-AC_PATH_PROG([PYTHON],[python])
-# export variable PYTHON
-AC_SUBST([PYTHON])
-# check python version (works for ubuntu xenial 16.04)
-AX_PROG_PYTHON_VERSION([2.7.0], [HAVE_PYTHON=1])
-# check availability of pip
-AC_PATH_PROG([PIP],[pip])
-# export variable PIP
-AC_SUBST([PIP])
-# check availability of pipenv
-AC_PATH_PROG([PIPENV],[pipenv])
-# export variable PIPENV
-AC_SUBST([PIPENV])
-AS_IF([test x$HAVE_PYTHON = x1 -a "x$PYTHON" != "x" -a "x$PIP" != "x" -a "x$PIPENV" != "x"], [
-	CPPLINT=true
-], [CPPLINT=false])
-AM_CONDITIONAL([HAVE_CPPLINT], [test x$CPPLINT = xtrue])
+# check availability of cpplint
+AC_PATH_PROG([CPPLINT],[cpplint])
+# export variable CPPLINT
+AC_SUBST([CPPLINT])
+# define conditional
+AM_CONDITIONAL([HAVE_CPPLINT], [test x$CPPLINT != x])
 
 # required for finding installation directory, $(INSTALL)
 AC_PROG_INSTALL
