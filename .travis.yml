@@ -1,15 +1,20 @@
 language: c
 
+dist: trusty
+sudo: required
+
 compiler:
-  - clang
   - gcc
+
+before_install:
+  - pip install --user cpp-coveralls cpplint
+  - sudo apt-get install -y lcov
 
 script:
   - ./autogen.sh
   - ./configure
   - make lint
-  - make unittest
-  - make sanity
   - make coverage
-  - make distcheck
- 
+
+after_success:
+  - coveralls --exclude test --gcov-options '\-lp'
