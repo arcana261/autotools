@@ -1,11 +1,11 @@
 # project output
 /hello
-/libwhine-1.0.la
+/libwhine-1.la
 
 # auto generated files
 .deps
 .dirstamp
-/.libs
+.libs
 /Makefile
 /build-aux
 /config.h
@@ -13,6 +13,9 @@
 /config.status
 /libtool
 /*.pc
+/Pipfile.lock
+*.gcov
+/m4/pkg.m4
 
 # object files
 *.o

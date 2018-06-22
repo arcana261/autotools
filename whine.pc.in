@@ -6,5 +6,6 @@ includedir=@includedir@
 Name: @PACKAGE_NAME@
 Description: A whining library ;)
 Version: @PACKAGE_VERSION@
+Requires: glib-2.0 >= 2.48
 Cflags: -I${includedir}
-Libs: -L${libdir} -lwhine-1.0
+Libs: -L${libdir} -lwhine-1

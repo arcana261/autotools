@@ -7,7 +7,9 @@ See more doc [here](https://autotools.io)
 
 ```bash
 ./autogen.sh
-./configure
+CC=clang ./configure
+make check
 make
+make install
 ```
 
