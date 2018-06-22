@@ -1,6 +1,7 @@
 # project output
 /hello
 /libwhine-1.la
+/test/whine/whine_test
 
 # auto generated files
 .deps
@@ -21,6 +22,12 @@
 # object files
 *.o
 *.lo
+
+# code coverage
+*.gcda
+*.gcno
+/coverage.info
+/coverage
 
 # junk files
 *~

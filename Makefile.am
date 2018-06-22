@@ -67,7 +67,6 @@ ACLOCAL_AMFLAGS = -I m4 --install
 
 # some extra files which are not source files
 EXTRA_DIST = \
-	m4/NOTES \
 	autogen.sh \
 	whine.pc
 
@@ -138,12 +137,54 @@ endif
 .PHONY: check-sanity
 check-sanity: | check-sanity-leak check-sanity-address check-sanity-undefined check-sanity-thread check-sanity-memory
 
+# run code coverage
+# notable outputs
+# Summary coverage rate:
+#  lines......: 40.0% (2 of 5 lines)
+#  functions..: 50.0% (1 of 2 functions)
+#  branches...: no data found
+# Overall coverage rate:
+#  lines......: 40.0% (2 of 5 lines)
+#  functions..: 50.0% (1 of 2 functions)
+.PHONY: check-coverage
+check-coverage:
+	$(MAKE) $(AM_MAKEFLAGS) clean
+	$(MAKE) $(AM_MAKEFLAGS) \
+		CFLAGS="$(CFLAGS) $(COVERAGE_CFLAGS) $(COVERAGE_OPTFLAGS)" \
+		CXXFLAGS="$(CXXFLAGS) $(COVERAGE_CXXFLAGS) $(COVERAGE_OPTFLAGS)" \
+		LDFLAGS="$(LDFLAGS) $(COVERAGE_LDFLAGS)" \
+		LIBS="$(LIBS) $(COVERAGE_LIBS)" \
+		check-test
+	$(LCOV) --capture \
+		--directory "$(top_builddir)/src" \
+		--base-directory "$(abspath $(top_builddir))" \
+		--output-file $(top_builddir)/coverage.info \
+		--gcov-tool "$(GCOV)" \
+		--compat-libtool --checksum
+	$(LCOV) \
+		--extract $(top_builddir)/coverage.info "$(abspath $(top_srcdir))/src/*" \
+		--gcov-tool $(GCOV) \
+		--output-file $(top_builddir)/coverage.info
+	$(GENHTML) \
+		--prefix "$(abspath $(top_srcdir))" \
+		--output-directory $(top_builddir)/coverage \
+        --title $(PACKAGE_NAME) \
+		--legend --show-details \
+		$(GENHTML_OPTIONS) \
+		$(top_builddir)/coverage.info
+
+clean-coverage:
+	find $(top_builddir) -name *.gcda -exec rm -f {} +
+	find $(top_builddir) -name *.gcno -exec rm -f {} +
+	find $(top_builddir) -name *.gcov -exec rm -f {} +
+	rm -f $(top_builddir)/coverage.info
+	rm -rfv $(top_builddir)/coverage
+
 # define extensions to "make check"
-check-local: | check-cpplint check-unittest check-sanity
+check-local: | check-cpplint check-unittest check-sanity check-coverage
 
 # define extensions to "make clean"
-clean-local:
-	rm -f *.gcno
+clean-local: | clean-coverage
 
 # define whine library
 lib_LTLIBRARIES = libwhine-1.la
@@ -158,11 +199,6 @@ include_HEADERS = \
 check_PROGRAMS = test/whine/whine_test 
 test_whine_whine_test_SOURCES = test/whine/whine_test.c
 test_whine_whine_test_LDADD = $(lib_LTLIBRARIES)
-#test_whine_whine_test_CFLAGS = $(AM_CFLAGS) -fsanitize=address \
-#	-fsanitize=leak -fsanitize=undefined -fno-omit-frame-pointer
-#test_whine_whine_test_race_SOURCES = $(test_whine_whine_test_SOURCES)
-#test_whine_whine_test_race_CFLAGS = $(AM_CFLAGS) -fsanitize=thread -fno-omit-frame-pointer
-
 
 # define pkgconfig
 pkgconfiglibdir = $(libdir)/pkgconfig

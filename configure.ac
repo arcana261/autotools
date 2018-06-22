@@ -7,10 +7,29 @@
 # You can output error messages by:
 # AC_MSG_ERROR([[this is an error message]])
 
-AC_INIT([sample_app], [0.1.0], [info@ucoder.ir])
+# you can manually include a m4 file
+# m4_include([m4/libuv-check-flags.m4])
+
+# conditional programming:
+# AS_IF([AS_CASE([$host_os],[openedition*],  [false], [true])], [
+#   CC_CHECK_CFLAGS_APPEND([-pedantic])
+# ])
+#
+# AM_CONDITIONAL([AIX], [AS_CASE([$host_os],[aix*], [true], [false])])
+#
+# AS_IF([test x$HAVE_PYTHON = x1 -a "x$PYTHON" != "x" -a "x$PIP" != "x" -a "x$PIPENV" != "x"], .........
+
+# variables at disposal:
+# CFLAGS
+# CPPFLAGS <- c preprocessor flags
+# LDFLAGS
+# LIBS
+
 # auto autoconf version
 # this works for ubuntu xenial 16.04 or newer
 AC_PREREQ([2.69])
+
+AC_INIT([sample_app], [0.1.0], [https://github.com/arcana261/autotools/issues])
 
 # check file exists
 AC_CONFIG_SRCDIR([src/hello.c])
@@ -65,16 +84,19 @@ AC_PROG_CC
 AC_LANG([C])
 
 # check support for required compiler flags for sanity checkings
-AX_CHECK_COMPILE_FLAG([-fsanitize=leak], [SANITY_LEAK=1], [AC_MSG_WARN([can not perform memory leak sanity checking])])
-AX_CHECK_COMPILE_FLAG([-fsanitize=address], [SANITY_ADDRESS=1], [AC_MSG_WARN([can not perform address sanity checking])])
-AX_CHECK_COMPILE_FLAG([-fsanitize=undefined], [SANITY_UNDEFINED=1], [AC_MSG_WARN([can not perform undefined sanity checking])])
-AX_CHECK_COMPILE_FLAG([-fsanitize=thread], [SANITY_THREAD=1], [AC_MSG_WARN([can not perform thread sanity checking])])
-AX_CHECK_COMPILE_FLAG([-fsanitize=memory], [SANITY_MEMOTY=1], [AC_MSG_WARN([can not perform memory sanity checking])])
-AM_CONDITIONAL([HAVE_LEAK_SANITIZER], [test x$SANITY_LEAK = x1])
-AM_CONDITIONAL([HAVE_ADDRESS_SANITIZER], [test x$SANITY_ADDRESS = x1])
-AM_CONDITIONAL([HAVE_UNDEFINED_SANITIZER], [test x$SANITY_UNDEFINED = x1])
-AM_CONDITIONAL([HAVE_THREAD_SANITIZER], [test x$SANITY_THREAD = x1])
-AM_CONDITIONAL([HAVE_MEMORY_SANITIZER], [test x$SANITY_MEMORY = x1])
+AX_CHECK_COMPILE_FLAG([-fsanitize=leak], [SANITY_LEAK=true], [SANITY_LEAK=false])
+AX_CHECK_COMPILE_FLAG([-fsanitize=address], [SANITY_ADDRESS=true], [SANITY_LEAK=false])
+AX_CHECK_COMPILE_FLAG([-fsanitize=undefined], [SANITY_UNDEFINED=true], [SANITY_UNDEFINED=false])
+AX_CHECK_COMPILE_FLAG([-fsanitize=thread], [SANITY_THREAD=true], [SANITY_THREAD=false])
+AX_CHECK_COMPILE_FLAG([-fsanitize=memory], [SANITY_MEMORY=true], [SANITY_MEMORY=false])
+AM_CONDITIONAL([HAVE_LEAK_SANITIZER], [test x$SANITY_LEAK = xtrue])
+AM_CONDITIONAL([HAVE_ADDRESS_SANITIZER], [test x$SANITY_ADDRESS = xtrue])
+AM_CONDITIONAL([HAVE_UNDEFINED_SANITIZER], [test x$SANITY_UNDEFINED = xtrue])
+AM_CONDITIONAL([HAVE_THREAD_SANITIZER], [test x$SANITY_THREAD = xtrue])
+AM_CONDITIONAL([HAVE_MEMORY_SANITIZER], [test x$SANITY_MEMORY = xtrue])
+
+# Checks for existence of coverage tools and define variables for reporting coverage
+AX_COVERAGE
 
 # run and check compilation of additional source files
 # AC_LANG_SOURCE([[int main() { return 0; }]])
@@ -91,26 +113,22 @@ AM_CONDITIONAL([HAVE_MEMORY_SANITIZER], [test x$SANITY_MEMORY = x1])
 ### cpplint ###
 # check availability of python
 AC_PATH_PROG([PYTHON],[python])
-AS_IF([test "x$PYTHON" = "x"], [AC_MSG_WARN([python not found, disabling cpplint])])
 # export variable PYTHON
 AC_SUBST([PYTHON])
 # check python version (works for ubuntu xenial 16.04)
 AX_PROG_PYTHON_VERSION([2.7.0], [HAVE_PYTHON=1])
-AS_IF([test x$HAVE_PYTHON = x], [AC_MSG_WARN([python version lesser than 2.7.0, disabling cpplint])])
 # check availability of pip
 AC_PATH_PROG([PIP],[pip])
-AS_IF([test "x$PIP" = "x"], [AC_MSG_WARN([pip not found, disabling cpplint])])
 # export variable PIP
 AC_SUBST([PIP])
 # check availability of pipenv
 AC_PATH_PROG([PIPENV],[pipenv])
-AS_IF([test "x$PIPENV" = "x"], [AC_MSG_WARN([pipenv not found, disabling cpplint])])
 # export variable PIPENV
 AC_SUBST([PIPENV])
 AS_IF([test x$HAVE_PYTHON = x1 -a "x$PYTHON" != "x" -a "x$PIP" != "x" -a "x$PIPENV" != "x"], [
-	CPPLINT=1
-], [AC_MSG_WARN([cpplint disabled])])
-AM_CONDITIONAL([HAVE_CPPLINT], [test x$CPPLINT = x1])
+	CPPLINT=true
+], [CPPLINT=false])
+AM_CONDITIONAL([HAVE_CPPLINT], [test x$CPPLINT = xtrue])
 
 # required for finding installation directory, $(INSTALL)
 AC_PROG_INSTALL
@@ -123,6 +141,13 @@ AC_PROG_INSTALL
 LT_INIT
 
 ## BEGIN Put various checks and such here
+
+# check for existence of certain header files
+# AC_CHECK_HEADERS([sys/ahafs_evProds.h])
+
+# check for compilability
+# AC_COMPILE_IFELSE(input, [action-if-true], [action-if-false])
+
 ## END
 
 # Check for pthreads library.
@@ -155,6 +180,10 @@ LT_INIT
 #     ])
 # ])
 #####
+# For other libraries who do not provide a pkg-config file
+#
+# AC_CHECK_LIB([nsl], [gethostbyname])
+#
 
 # resolve glib-2.0
 PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.48])
@@ -203,4 +232,13 @@ Development:
 	Undefined Sanitizer Checking  : $SANITY_UNDEFINED
 	Thread Sanitizer Checking     : $SANITY_THREAD
 	Memory Sanitizer Checking     : $SANITY_MEMORY
+
+Coverage Reports      : $COVERAGE_SUPPORT
+    gcov                : $GCOV
+      COVERAGE_CFLAGS   : $COVERAGE_CFLAGS
+      COVERAGE_CXXFLAGS : $COVERAGE_CXXFLAGS
+      COVERAGE_OPTFLAGS : $COVERAGE_OPTFLAGS
+      COVERAGE_LDFLAGS  : $COVERAGE_LDFLAGS
+      COVERAGE_LIBS     : $COVERAGE_LIBS
+    lcov                : $LCOV
 ])
