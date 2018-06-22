@@ -209,6 +209,7 @@ deb:
 		> $(distdir)/_build/DEBIAN/control
 	$(DPKG_DEB) --build $(distdir)/_build
 	$(am__mv) $(distdir)/_build.deb $(distdir).deb
+	cp $(distdir).deb $(PACKAGE).deb
 endif
 
 # define extensions to "make check"
