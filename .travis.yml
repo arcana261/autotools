@@ -1,0 +1,14 @@
+language: c
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - ./autogen.sh
+  - ./configure
+  - make lint
+  - make unittest
+  - make sanity
+  - make coverage
+ 

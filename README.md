@@ -29,7 +29,7 @@ make lint
 # unit test
 
 ```bash
-make unittets
+make unittest
 ```
 
 # gcc/clang sanity checks
