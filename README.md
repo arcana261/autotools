@@ -49,6 +49,14 @@ requires gcov and lcov, install via `apt-get install gcov lcov`
 make coverage
 ```
 
+# debian packaging
+
+edit files in `pkg` folder, then run
+
+```bash
+make deb
+```
+
 # vscode coding
 
 contents of `.vscode/c_cpp_properties.json`
